@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Dict, List
-from venmo_api import ArgumentMissingError, User
+from venmo_api import ArgumentMissingError, User, Page
 import re
 
 
@@ -19,11 +19,13 @@ def validate_access_token(access_token):
     return f"Bearer {access_token}"
 
 
-def deserialize(response: Dict, data_type, nested_response: List[str] = None):
+def deserialize(response: Dict, data_type, nested_response: List[str] = None, user_id=None, method=None):
     """Extract one or a list of Objects from the api_client structured response.
     :param response: <Dict>
     :param data_type: <Generic>
     :param nested_response: <List[str]> Optional. Loop through the body
+    :param user_id: <String/int> user_id for paging functionality
+    :param method: <Function> Source function that's creating resources. For paging functionality
     :return:
     """
 
@@ -41,7 +43,7 @@ def deserialize(response: Dict, data_type, nested_response: List[str] = None):
 
     # Return a list of <class> data_type
     if isinstance(data, list):
-        return __get_objs_from_json_list(json_list=data, data_type=data_type)
+        return __get_objs_from_json_list(json_list=data, data_type=data_type, user_id=user_id, method=method)
 
     return data_type.from_json(json=data)
 
@@ -67,13 +69,15 @@ def wrap_callback(callback, data_type, nested_response: List[str] = None):
     return wrapper
 
 
-def __get_objs_from_json_list(json_list, data_type):
+def __get_objs_from_json_list(json_list, data_type, user_id=None, method=None):
     """Process JSON for User/Transaction
     :param json_list: <list> a list of objs
     :param data_type: <class> Either User/Transaction
+    :param user_id: <String/int> user_id for paging functionality
+    :param method: <Function> source function. for paging functionality.
     :return: <list> a list of <User>
     """
-    result = []
+    result = Page(user_id=user_id, method=method) if user_id else []
     for obj in json_list:
         data_obj = data_type.from_json(obj)
         if not data_obj:

@@ -1,5 +1,5 @@
 import re
-from venmo_api import User
+from venmo_api import User, Page
 from venmo_api import Transaction
 from venmo_api import InvalidArgumentError
 from venmo_api import deserialize, wrap_callback, get_user_id
@@ -121,7 +121,7 @@ class UserApi(object):
     def get_user_transactions(self, user_id: str = None, user: User = None,
                               callback=None,
                               count: int = 50,
-                              before_id=None) -> Union[Transaction, None]:
+                              before_id=None) -> Union[Page, None]:
         """
         Get ([user_id]'s or [user]'s) transactions visible to yourself as a list of <Transaction>s
         :param user_id:
@@ -150,7 +150,7 @@ class UserApi(object):
         if callback:
             return
 
-        return deserialize(response=response, data_type=Transaction)
+        return deserialize(response=response, data_type=Transaction, user_id=user_id, method=self.get_user_transactions)
 
     def get_transaction_between_two_users(self, user_id_one: str = None,
                                           user_id_two: str = None,
