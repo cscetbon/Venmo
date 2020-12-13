@@ -9,7 +9,7 @@ class Transaction(BaseModel):
 
     def __init__(self, story_id, payment_id, date_completed, date_created,
                  date_updated, payment_type, amount, audience, status,
-                 note, device_used, actor, target):
+                 note, device_used, actor, target, json=None):
 
         super().__init__()
 
@@ -30,6 +30,7 @@ class Transaction(BaseModel):
 
         self.actor = actor
         self.target = target
+        self.__json = json
 
     @classmethod
     def from_json(cls, json):
@@ -69,7 +70,8 @@ class Transaction(BaseModel):
                    status=parser.get_status(),
                    device_used=device_used,
                    actor=actor,
-                   target=target)
+                   target=target,
+                   json=json)
 
 
 class TransactionType(Enum):
